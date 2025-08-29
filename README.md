@@ -4,7 +4,7 @@ A 3-page Next.js app using **Apollo Client** and a public **GraphQL** API.
 
 ## Demo / PR
 
-- Pull Request: (add your PR link here)
+- Pull Request: (https://github.com/EnesHasani123/guitar-shop/pull/1)
 
 ## Tech
 

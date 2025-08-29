@@ -1,14 +1,19 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useI18n } from "@/components/providers/LangProvider";
 
 export default function WhyAndDownload() {
+  const { t } = useI18n();
+
   return (
     <>
-      {/* Black band */}
+  
       <section className="bg-[#0E0E0E] text-white">
         <div className="max-w-6xl mx-auto px-4 md:px-6 py-16 md:py-20">
           <h2 className="text-center text-2xl md:text-3xl font-semibold">
-            Why try{" "}
+            {t.whyTry}{" "}
             <span className="text-orange-500">
               VibeStrings?
             </span>
@@ -17,15 +22,15 @@ export default function WhyAndDownload() {
           <div className="mt-10 grid gap-10 md:gap-14 grid-cols-1 md:grid-cols-3">
             {[
               {
-                title: "SMOOTH BROWSING",
+                title: t.smoothBrowsing,
                 text: "Explore guitars with fast, intuitive navigation.",
               },
               {
-                title: "EASY DELIVERY",
+                title: t.easyDelivery,
                 text: "Checkout in minutes and track your order.",
               },
               {
-                title: "SWIFT PAYMENTS",
+                title: t.swiftPayments,
                 text: "Secure payments with your favorite methods.",
               },
             ].map((f) => (
@@ -55,13 +60,14 @@ export default function WhyAndDownload() {
         </div>
       </section>
 
+  
       <section className="bg-white">
         <div className="max-w-6xl mx-auto px-4 md:px-6 py-16 md:py-20 grid md:grid-cols-2 gap-10 items-center">
           <div>
             <h3 className="text-[28px] md:text-[36px] leading-[1.15] font-semibold text-gray-900">
-              Browse and buy your{" "}
+              {t.browseAndBuy}{" "}
               <span className="text-orange-500">
-                favorite guitars
+                {t.favoriteGuitars}
               </span>{" "}
               with VibeStrings.
             </h3>
@@ -94,7 +100,7 @@ export default function WhyAndDownload() {
             </div>
           </div>
 
-          {/* Right single image with orange pill behind */}
+  
           <div className="relative flex justify-center">
             <div className="absolute -z-10 h-56 w-56 rounded-full bg-orange-500/90 blur-sm self-center" />
             <Image

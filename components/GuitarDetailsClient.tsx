@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useQuery } from "@apollo/client/react";
 import { FIND_UNIQUE_MODEL } from "@/graphql/queries";
 import Spotlight from "@/components/Spotlight";
+import { useI18n } from "@/components/providers/LangProvider";
 
 type Specs = {
   bodyWood?: string | null;
@@ -40,6 +41,8 @@ export default function GuitarDetailsClient({
   brandId: string;
   modelId: string;
 }) {
+  const { t } = useI18n();
+
   const { data, loading, error, refetch } = useQuery<{
     findUniqueModel: ModelDetails;
   }>(FIND_UNIQUE_MODEL, {
@@ -77,15 +80,15 @@ export default function GuitarDetailsClient({
             href={`/brands/${brandId}`}
             className="text-gray-500 hover:text-gray-700"
           >
-            &larr; Back To List
+            &larr; {t.backToList}
           </Link>
           <div className="mt-6 p-4 border rounded bg-red-50 text-red-700">
-            Failed to load model details.
+            {t.failedLoadDetails}
             <button
               className="ml-3 inline-flex items-center rounded px-3 py-1 border bg-white hover:bg-gray-50"
               onClick={() => refetch()}
             >
-              Retry
+              {t.retry}
             </button>
           </div>
         </div>
@@ -103,26 +106,26 @@ export default function GuitarDetailsClient({
 
   return (
     <main className="pb-0">
-      {/* HERO ROW */}
+    
       <section className="max-w-6xl mx-auto px-4 md:px-6 pt-4 md:pt-6 grid md:grid-cols-2 gap-10 items-center">
-        {/* back */}
+ 
         <div className="md:col-span-2">
           <Link
             href={`/brands/${brandId}`}
             className="text-sm text-gray-500 hover:text-gray-700"
           >
-            &larr; Back To List
+            &larr; {t.backToList}
           </Link>
         </div>
 
-        {/* title + (optional) price/desc blurb */}
+  
         <div className="order-1 md:order-none">
           <h1 className="text-[36px] md:text-[44px] lg:text-[56px] font-bold text-gray-900 leading-tight tracking-tight">
             {m.name}
           </h1>
         </div>
 
-        {/* right weird shape with guitar */}
+    
         <div className="order-2 md:order-none">
           <Spotlight
             variant="guitar"
@@ -132,7 +135,7 @@ export default function GuitarDetailsClient({
         </div>
       </section>
 
-      {/* TABS */}
+ 
       <section className="max-w-6xl mx-auto px-4 md:px-6 mt-8">
         <div className="flex items-center gap-8 border-b border-gray-200">
           <button
@@ -143,7 +146,7 @@ export default function GuitarDetailsClient({
                 : "text-gray-500"
             }`}
           >
-            Specification
+            {t.specification}
           </button>
           <button
             onClick={() => setTab("musicians")}
@@ -153,23 +156,21 @@ export default function GuitarDetailsClient({
                 : "text-gray-500"
             }`}
           >
-            Who plays it?
+            {t.whoPlaysIt}
           </button>
         </div>
       </section>
 
-      {/* CONTENT */}
+   
       <section className="max-w-6xl mx-auto px-4 md:px-6 py-8 md:py-10">
         {tab === "specs" ? (
           <div className="grid md:grid-cols-12 gap-10">
-            {/* left text block matches Figma spacing/width */}
             <div className="md:col-span-8">
               {m.description && (
                 <p className="text-gray-700 leading-relaxed">
                   {m.description}
                 </p>
               )}
-
               <ul className="mt-6 list-disc pl-6 space-y-2 text-gray-800">
                 {m.specs?.bodyWood && (
                   <li>
@@ -220,7 +221,6 @@ export default function GuitarDetailsClient({
                   className="rounded-2xl border border-gray-200 bg-white shadow-sm p-4"
                 >
                   <div className="aspect-[4/3] overflow-hidden rounded-xl bg-gray-100">
-                    {/* musician images can be remote → plain <img> is fine */}
                     <img
                       src={mu.musicianImage}
                       alt={mu.name}
@@ -241,7 +241,7 @@ export default function GuitarDetailsClient({
               ))}
             </div>
 
-            {/* dots + show more to match the spec */}
+       
             <div className="mt-6 flex items-center justify-center gap-3">
               <div className="flex items-center gap-2">
                 {Array.from({ length: pages }).map(
@@ -275,7 +275,7 @@ export default function GuitarDetailsClient({
                   }
                   className="inline-flex items-center justify-center rounded-lg px-3 py-1.5 border border-gray-300 bg-white text-gray-900 hover:bg-gray-50 text-sm"
                 >
-                  Show 2 more
+                  {t.showTwoMore}
                 </button>
               )}
             </div>

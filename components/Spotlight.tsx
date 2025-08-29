@@ -30,14 +30,12 @@ export default function Spotlight(props: SpotlightProps) {
             "linear-gradient(180deg, #FF8A3B 0%, #F15A24 100%)",
         }}
       >
-        {/* optional badge in the top-left */}
         {"badge" in props && props.badge && (
           <div className="absolute left-4 top-4 text-[13px] font-medium text-white/95">
             {props.badge}
           </div>
         )}
 
-        {/* Brand label fallback */}
         {"label" in props && (
           <div className="absolute inset-0 flex items-center justify-center">
             <span className="text-white/95 text-5xl md:text-6xl lg:text-7xl font-black tracking-tight drop-shadow-[0_1px_1px_rgba(0,0,0,0.15)]">
@@ -46,7 +44,6 @@ export default function Spotlight(props: SpotlightProps) {
           </div>
         )}
 
-        {/* Image variant: <img> for remote, <Image> for local */}
         {isImageVariant &&
           (isRemote ? (
             <img
@@ -65,7 +62,6 @@ export default function Spotlight(props: SpotlightProps) {
             />
           ))}
 
-        {/* bottom notch */}
         <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 w-12 h-12 bg-white rounded-full border border-white/50 shadow-sm flex items-center justify-center">
           <span className="inline-block w-2.5 h-2.5 rounded-full bg-white/90" />
         </div>

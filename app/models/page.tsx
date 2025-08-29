@@ -4,7 +4,12 @@ import {
   useApolloClient,
   useQuery,
 } from "@apollo/client/react";
-import { useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import Link from "next/link";
 import Spotlight from "@/components/Spotlight";
 import ModelCard from "@/components/ModelCard";
@@ -12,6 +17,8 @@ import {
   FIND_ALL_BRANDS,
   FIND_BRAND_MODELS,
 } from "@/graphql/queries";
+import { useI18n } from "@/components/providers/LangProvider";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 
 type Brand = {
   id: string;
@@ -24,22 +31,20 @@ type Model = {
   type?: string | null;
   image?: string | null;
   price?: number | null;
-  // augmented for UI:
   brandId?: string;
   brandName?: string;
 };
 
 export default function AllModelsPage() {
   const client = useApolloClient();
+  const { t, tr } = useI18n();
 
-  // 1) Load all brands (with logo images)
   const {
     data: brandsData,
     loading: loadingBrands,
     error: errorBrands,
   } = useQuery<{ findAllBrands: Brand[] }>(FIND_ALL_BRANDS);
 
-  // UI state
   const [loadingModels, setLoadingModels] = useState(false);
   const [allModels, setAllModels] = useState<Model[]>([]);
   const [brandId, setBrandId] = useState<string>("ALL");
@@ -52,14 +57,12 @@ export default function AllModelsPage() {
     null
   );
 
-  // 2) Fetch models (for a single brand, or all brands) and flatten
   useEffect(() => {
     const run = async () => {
       const all = brandsData?.findAllBrands;
       if (!all || all.length === 0) return;
 
       setLoadingModels(true);
-
       const brands =
         brandId === "ALL"
           ? all
@@ -87,15 +90,15 @@ export default function AllModelsPage() {
       );
 
       setAllModels(flat);
-      setVisible(12);
-      setSpotImage(null);
+      setVisible(12); 
+      setSpotImage(null); 
       setLoadingModels(false);
     };
 
     run();
   }, [brandsData, client, brandId]);
 
-  // 3) Filters
+
   const filtered = useMemo(() => {
     let items = allModels;
     if (type !== "ALL")
@@ -110,7 +113,6 @@ export default function AllModelsPage() {
   }, [allModels, type, query]);
 
   const shown = filtered.slice(0, visible);
-
   const brandObj =
     brandId === "ALL"
       ? null
@@ -120,34 +122,47 @@ export default function AllModelsPage() {
 
   const isLoading = loadingBrands || loadingModels;
 
+ 
+  const canLoadMore = shown.length < filtered.length;
+  const loadMore = useCallback(() => {
+    setVisible((v) => Math.min(v + 12, filtered.length));
+  }, [filtered.length]);
+  const sentinelRef = useInfiniteScroll(
+    loadMore,
+    canLoadMore
+  );
+
+  const typeLabel = {
+    ALL: t.typeAll,
+    ELECTRIC: t.typeElectric,
+    ACOUSTIC: t.typeAcoustic,
+    BASS: t.typeBass,
+    CLASSICAL: t.typeClassical,
+  } as const;
+
   return (
     <main className="py-10 space-y-10">
-      {/* Hero row */}
+     
       <section className="max-w-6xl mx-auto px-4 md:px-6 grid md:grid-cols-2 gap-10 items-center">
         <div>
           <Link
             href="/"
             className="text-gray-500 hover:text-gray-700"
           >
-            &larr; Back To Home
+            &larr; {t.backHome}
           </Link>
           <h1 className="mt-3 text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
-            Play like a{" "}
-            <span className="text-orange-500">Rock</span>{" "}
-            star
+            {t.playLikeA}{" "}
+            <span className="text-orange-500">
+              {t.rock}
+            </span>{" "}
+            {t.star}
           </h1>
           <p className="mt-4 text-gray-600 text-sm md:text-base max-w-md">
-            With a legacy dating back decades, we blend
-            expert craftsmanship with innovation.
+            {t.legacyBlurb}
           </p>
         </div>
 
-        {/* Spotlight modes:
-            - guitar selected → show guitar image
-            - brand selected with logo → show brand logo image (+ badge label)
-            - brand selected w/o logo → label
-            - no brand → featured local image (+ badge)
-        */}
         {spotImage ? (
           <Spotlight
             variant="guitar"
@@ -170,28 +185,30 @@ export default function AllModelsPage() {
           <Spotlight
             variant="random"
             imageSrc="/homepage.png"
-            imageAlt="Featured"
-            badge="Featured"
+            imageAlt={t.featured}
+            badge={t.featured}
           />
         )}
       </section>
 
-      {/* Controls + grid */}
+      
       <section className="max-w-6xl mx-auto px-4 md:px-6">
         <h2 className="text-2xl md:text-3xl font-semibold text-gray-900">
-          Check out the{" "}
-          <span className="text-orange-500">Selection</span>
+          {t.checkOutThe}{" "}
+          <span className="text-orange-500">
+            {t.selection}
+          </span>
         </h2>
 
-        {/* Toolbar */}
         <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
           <select
             className="rounded-lg border border-gray-300 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-orange-400"
             value={brandId}
             onChange={(e) => setBrandId(e.target.value)}
             disabled={loadingBrands || !!errorBrands}
+            aria-label={t.allBrands}
           >
-            <option value="ALL">All brands</option>
+            <option value="ALL">{t.allBrands}</option>
             {brandsData?.findAllBrands.map((b) => (
               <option key={b.id} value={b.id}>
                 {b.name}
@@ -203,29 +220,32 @@ export default function AllModelsPage() {
             className="rounded-lg border border-gray-300 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-orange-400"
             value={type}
             onChange={(e) => setType(e.target.value as any)}
+            aria-label={t.filterByType}
           >
-            {[
-              "ALL",
-              "ELECTRIC",
-              "ACOUSTIC",
-              "BASS",
-              "CLASSICAL",
-            ].map((t) => (
-              <option key={t} value={t}>
-                {t}
+            {(
+              [
+                "ALL",
+                "ELECTRIC",
+                "ACOUSTIC",
+                "BASS",
+                "CLASSICAL",
+              ] as const
+            ).map((tKey) => (
+              <option key={tKey} value={tKey}>
+                {typeLabel[tKey]}
               </option>
             ))}
           </select>
 
           <input
             className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-orange-400"
-            placeholder="Search by name"
+            placeholder={t.searchByName}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
         </div>
 
-        {/* Loading */}
+      
         {isLoading && (
           <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {Array.from({ length: 9 }).map((_, i) => (
@@ -240,14 +260,14 @@ export default function AllModelsPage() {
           </div>
         )}
 
-        {/* Error */}
+   
         {!!errorBrands && (
           <div className="mt-6 p-4 border rounded bg-red-50 text-red-700">
-            Failed to load brands.
+            {t.failedLoadBrands}
           </div>
         )}
 
-        {/* Grid */}
+    
         {!isLoading && !errorBrands && (
           <>
             <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
@@ -266,30 +286,21 @@ export default function AllModelsPage() {
                     type={m.type}
                     image={m.image}
                     price={m.price}
+                    brandName={m.brandName}
                   />
-                  {m.brandName && (
-                    <div className="mt-1 text-xs text-gray-500">
-                      {m.brandName}
-                    </div>
-                  )}
                 </div>
               ))}
             </div>
 
-            {shown.length < filtered.length && (
-              <div className="mt-8 flex justify-center">
-                <button
-                  className="inline-flex items-center justify-center rounded-lg px-4 py-2 border border-gray-300 bg-white text-gray-900 hover:bg-gray-50 transition"
-                  onClick={() => setVisible((v) => v + 12)}
-                >
-                  Load more
-                </button>
-              </div>
+         
+            {canLoadMore && (
+              <div ref={sentinelRef} className="h-10" />
             )}
-
             <div className="mt-6 text-xs text-gray-500">
-              Showing {Math.min(visible, filtered.length)}{" "}
-              results from {filtered.length}
+              {tr("showingResults", {
+                a: Math.min(visible, filtered.length),
+                b: filtered.length,
+              })}
             </div>
           </>
         )}

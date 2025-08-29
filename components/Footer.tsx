@@ -1,12 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 export default function Footer() {
   return (
     <footer className="bg-[#F7F7F7]">
       <div className="max-w-6xl mx-auto px-4 md:px-6 py-12">
         <div className="grid gap-10 md:grid-cols-4">
-          {/* Brand + contact */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <Image
@@ -19,7 +19,6 @@ export default function Footer() {
 
             <ul className="space-y-2 text-sm text-gray-600">
               <li className="flex items-center gap-2">
-                {/* mail icon */}
                 <svg
                   width="16"
                   height="16"
@@ -34,7 +33,6 @@ export default function Footer() {
                 Enquiry@VibeStrings.com
               </li>
               <li className="flex items-center gap-2">
-                {/* location icon */}
                 <svg
                   width="16"
                   height="16"
@@ -51,7 +49,6 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Pages */}
           <div>
             <div className="text-sm font-semibold text-gray-900 mb-3">
               PAGES
@@ -84,7 +81,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Product */}
+      
           <div>
             <div className="text-sm font-semibold text-gray-900 mb-3">
               PRODUCT
@@ -117,13 +114,13 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Follow us */}
+   
           <div>
             <div className="text-sm font-semibold text-gray-900 mb-3">
               FOLLOW US
             </div>
             <div className="flex items-center gap-4">
-              {/* Simple social icons */}
+          
               <Link
                 href="#"
                 aria-label="Facebook"
@@ -178,6 +175,9 @@ export default function Footer() {
 
         <div className="mt-10 pt-6 text-xs text-gray-500">
           © {new Date().getFullYear()} Copyright VibeStrings
+        </div>
+        <div className="mt-6">
+          <LanguageSwitcher />
         </div>
       </div>
     </footer>

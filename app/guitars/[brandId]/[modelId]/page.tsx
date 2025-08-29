@@ -5,7 +5,6 @@ export default function Page({
 }: {
   params: { brandId: string; modelId: string };
 }) {
-  // Server Components can access params directly with no warning
   return (
     <GuitarDetailsClient
       brandId={params.brandId}

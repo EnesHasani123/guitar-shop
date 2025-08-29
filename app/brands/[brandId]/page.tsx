@@ -5,6 +5,5 @@ export default function Page({
 }: {
   params: { brandId: string };
 }) {
-  // Server components can access params directly without warnings.
   return <BrandModelsClient brandId={params.brandId} />;
 }

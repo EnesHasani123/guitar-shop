@@ -1,7 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useQuery } from "@apollo/client/react";
 import Spotlight from "@/components/Spotlight";
 import ModelCard from "@/components/ModelCard";
@@ -10,6 +15,8 @@ import {
   FIND_BRAND_MODELS,
   SEARCH_MODELS,
 } from "@/graphql/queries";
+import { useI18n } from "@/components/providers/LangProvider";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 
 type Model = {
   id: string;
@@ -32,7 +39,8 @@ export default function BrandModelsClient({
 }: {
   brandId: string;
 }) {
-  // Brand (we need the logo image for the spotlight)
+  const { t, tr } = useI18n();
+
   const { data: brandData } = useQuery<{
     findUniqueBrand: {
       id: string;
@@ -58,12 +66,10 @@ export default function BrandModelsClient({
     return () => clearTimeout(id);
   }, [query]);
 
-  // Models for this brand (sorted)
   const {
     data: dataList,
     loading: loadingList,
     error: errorList,
-    refetch: refetchList,
   } = useQuery<{ findBrandModels: Model[] }>(
     FIND_BRAND_MODELS,
     {
@@ -71,17 +77,15 @@ export default function BrandModelsClient({
         brandId,
         sort: { field: "name", order: "ASC" },
       },
-      skip: !!debounced, // skip when searching
+      skip: !!debounced,
       fetchPolicy: "cache-and-network",
     }
   );
 
-  // Search within this brand
   const {
     data: dataSearch,
     loading: loadingSearch,
     error: errorSearch,
-    refetch: refetchSearch,
   } = useQuery<{ searchModels: Model[] }>(SEARCH_MODELS, {
     variables: { brandId, name: debounced || "" },
     skip: !debounced,
@@ -108,34 +112,49 @@ export default function BrandModelsClient({
   const brandLogo =
     brandData?.findUniqueBrand?.image ?? null;
 
+  const typeLabel = {
+    ALL: t.typeAll,
+    ELECTRIC: t.typeElectric,
+    ACOUSTIC: t.typeAcoustic,
+    BASS: t.typeBass,
+    CLASSICAL: t.typeClassical,
+  } as const;
+
+  
+  const canLoadMore = shown.length < filtered.length;
+  const loadMore = useCallback(() => {
+    setVisible((v) => Math.min(v + 12, filtered.length));
+  }, [filtered.length]);
+  const sentinelRef = useInfiniteScroll(
+    loadMore,
+    canLoadMore
+  );
+
   return (
     <main className="py-10 space-y-10">
-      {/* Hero with Spotlight */}
+  
       <section className="max-w-6xl mx-auto px-4 md:px-6 grid md:grid-cols-2 gap-10 items-center">
         <div>
           <Link
             href="/"
             className="text-gray-500 hover:text-gray-700"
           >
-            &larr; Back To Home
+            &larr; {t.backHome}
           </Link>
           <h1 className="mt-3 text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
-            Play like a{" "}
-            <span className="text-orange-500">Rock</span>{" "}
-            star
+            {t.playLikeA}{" "}
+            <span className="text-orange-500">
+              {t.rock}
+            </span>{" "}
+            {t.star}
           </h1>
           <p className="mt-4 text-gray-600 text-sm md:text-base max-w-md">
-            With a legacy dating back to the 1950s,{" "}
-            {brandName || "—"} blends expert craftsmanship
-            with innovation to elevate your performance.
+            {tr("legacyBrandBlurb", {
+              brand: brandName || "—",
+            })}
           </p>
         </div>
 
-        {/* Spotlight logic:
-           - if user clicked a model → show the guitar image
-           - else show brand logo if available (with badge)
-           - else fallback to brand name label
-        */}
         {spotImage ? (
           <Spotlight
             variant="guitar"
@@ -157,14 +176,15 @@ export default function BrandModelsClient({
         )}
       </section>
 
-      {/* Selection + controls + grid */}
+     
       <section className="max-w-6xl mx-auto px-4 md:px-6">
         <h2 className="text-2xl md:text-3xl font-semibold text-gray-900">
-          Check out the{" "}
-          <span className="text-orange-500">Selection</span>
+          {t.checkOutThe}{" "}
+          <span className="text-orange-500">
+            {t.selection}
+          </span>
         </h2>
 
-        {/* Toolbar */}
         <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
           <select
             className="rounded-lg border border-gray-300 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-orange-400"
@@ -173,17 +193,18 @@ export default function BrandModelsClient({
               setType(e.target.value as any);
               setVisible(12);
             }}
+            aria-label={t.filterByType}
           >
-            {TYPES.map((t) => (
-              <option key={t} value={t}>
-                {t}
+            {TYPES.map((tKey) => (
+              <option key={tKey} value={tKey}>
+                {typeLabel[tKey]}
               </option>
             ))}
           </select>
 
           <input
             className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-orange-400 sm:col-span-2"
-            placeholder="Search by name"
+            placeholder={t.searchByName}
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
@@ -192,7 +213,7 @@ export default function BrandModelsClient({
           />
         </div>
 
-        {/* Loading */}
+      
         {loading && (
           <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {Array.from({ length: 9 }).map((_, i) => (
@@ -207,22 +228,14 @@ export default function BrandModelsClient({
           </div>
         )}
 
-        {/* Error */}
+      
         {error && (
           <div className="mt-6 p-4 border rounded bg-red-50 text-red-700">
-            Failed to load models.
-            <button
-              className="ml-3 inline-flex items-center rounded px-3 py-1 border bg-white hover:bg-gray-50"
-              onClick={() =>
-                debounced ? refetchSearch() : refetchList()
-              }
-            >
-              Retry
-            </button>
+            {t.failedLoadModels}
           </div>
         )}
 
-        {/* Grid */}
+     
         {!loading && !error && (
           <>
             <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
@@ -241,28 +254,21 @@ export default function BrandModelsClient({
                     type={m.type}
                     image={m.image}
                     price={m.price}
+                    brandName={brandName}
                   />
-                  <div className="mt-1 text-xs text-gray-500">
-                    {brandName}
-                  </div>
                 </div>
               ))}
             </div>
 
-            {shown.length < filtered.length && (
-              <div className="mt-8 flex justify-center">
-                <button
-                  className="inline-flex items-center justify-center rounded-lg px-4 py-2 border border-gray-300 bg-white text-gray-900 hover:bg-gray-50 transition"
-                  onClick={() => setVisible((v) => v + 12)}
-                >
-                  Load more
-                </button>
-              </div>
+            {canLoadMore && (
+              <div ref={sentinelRef} className="h-10" />
             )}
 
             <div className="mt-6 text-xs text-gray-500 uppercase tracking-wide">
-              Showing {Math.min(visible, filtered.length)}{" "}
-              results from {filtered.length}
+              {tr("showingResults", {
+                a: Math.min(visible, filtered.length),
+                b: filtered.length,
+              })}
             </div>
           </>
         )}

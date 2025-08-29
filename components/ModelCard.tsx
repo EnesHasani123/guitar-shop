@@ -7,7 +7,10 @@ type Props = {
   type?: string | null;
   image?: string | null;
   price?: number | null;
+  brandName?: string;
 };
+
+const FALLBACK_IMG = "/homepage.png";
 
 export default function ModelCard({
   brandId,
@@ -16,32 +19,49 @@ export default function ModelCard({
   type,
   image,
   price,
+  brandName,
 }: Props) {
   return (
     <Link
       href={`/guitars/${brandId}/${id}`}
-      className="rounded-2xl border border-gray-200 bg-white shadow-sm p-4 md:p-6 transition hover:shadow-md block"
+      className="block group"
     >
-      <div className="bg-gray-50 rounded-xl overflow-hidden aspect-[4/3] mb-3">
+ 
+      <div className="aspect-[16/9] w-full overflow-hidden">
         <img
-          src={image ?? ""}
+          src={image || FALLBACK_IMG}
           alt={name}
-          className="w-full h-full object-cover"
+          loading="lazy"
+          className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+          onError={(e) => {
+            const el = e.currentTarget as HTMLImageElement;
+            if (!el.src.endsWith(FALLBACK_IMG))
+              el.src = FALLBACK_IMG;
+          }}
         />
       </div>
 
-      <div className="flex items-center justify-between">
-        <div className="font-medium">{name}</div>
+   
+      <div className="mt-3 flex items-center justify-between">
+        <div className="text-[15px] md:text-base font-medium leading-tight">
+          {name}
+        </div>
         {typeof price === "number" && (
-          <div className="text-gray-500">
+          <div className="text-sm md:text-[13px] text-gray-500">
             ${price.toLocaleString()}
           </div>
         )}
       </div>
 
       {type && (
-        <div className="mt-1 text-sm text-gray-500">
+        <div className="mt-1 text-xs tracking-wide text-gray-500">
           {type}
+        </div>
+      )}
+
+      {brandName && (
+        <div className="mt-1 text-xs text-gray-400">
+          {brandName}
         </div>
       )}
     </Link>

@@ -1,6 +1,6 @@
 import { gql } from "@apollo/client";
 
-// Page 1 – All brands
+
 export const FIND_ALL_BRANDS = gql`
   query FindAllBrands {
     findAllBrands {
@@ -13,7 +13,6 @@ export const FIND_ALL_BRANDS = gql`
   }
 `;
 
-// Page 2 – Models for a brand (sorted)
 export const FIND_BRAND_MODELS = gql`
   query FindBrandModels($brandId: ID!, $sort: sortBy!) {
     findBrandModels(id: $brandId, sortBy: $sort) {
@@ -26,7 +25,6 @@ export const FIND_BRAND_MODELS = gql`
   }
 `;
 
-// Page 2 – Search models within a brand
 export const SEARCH_MODELS = gql`
   query SearchModels($brandId: String!, $name: String!) {
     searchModels(brandId: $brandId, name: $name) {
@@ -39,7 +37,6 @@ export const SEARCH_MODELS = gql`
   }
 `;
 
-// Page 3 – Single model details
 export const FIND_UNIQUE_MODEL = gql`
   query FindUniqueModel($brandId: ID!, $modelId: ID!) {
     findUniqueModel(brandId: $brandId, modelId: $modelId) {

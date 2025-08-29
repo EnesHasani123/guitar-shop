@@ -6,7 +6,6 @@ type HeaderBannerProps = {
   logoSrc: string;
   logoAlt?: string;
 
-  /** Put your hero image into /public (e.g. /hero.jpg) */
   heroImage: string;
   heroAlt?: string;
 
@@ -36,7 +35,7 @@ export default function HeaderBanner({
 }: HeaderBannerProps) {
   return (
     <header className="relative overflow-hidden">
-      {/* Top bar with logo */}
+   
       <div className="max-w-6xl mx-auto px-4 md:px-6 py-6 flex items-center">
         <Image
           src={logoSrc}
@@ -47,9 +46,9 @@ export default function HeaderBanner({
         />
       </div>
 
-      {/* Hero content */}
+  
       <div className="max-w-6xl mx-auto px-4 md:px-6 grid md:grid-cols-2 gap-10 items-center py-8 md:py-12">
-        {/* Copy */}
+  
         <div className="relative z-10">
           <h1 className="text-[34px] md:text-[42px] lg:text-[52px] leading-[1.1] font-bold text-gray-900">
             {titleLead}{" "}
@@ -76,9 +75,9 @@ export default function HeaderBanner({
           )}
         </div>
 
-        {/* Right “weird shape” image */}
+     
         <div className="relative md:pl-8">
-          {/* The big rounded panel that sticks to the right */}
+ 
           <div className="relative ml-auto w-full h-[300px] md:h-[420px] lg:h-[520px] rounded-[48px] md:rounded-l-[140px] overflow-hidden shadow-sm">
             <Image
               src={heroImage}
@@ -89,13 +88,13 @@ export default function HeaderBanner({
               sizes="(min-width: 768px) 600px, 100vw"
             />
 
-            {/* bottom notch */}
+         
             <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 w-12 h-12 bg-white rounded-full border border-gray-200 shadow-sm flex items-center justify-center">
               <span className="inline-block w-2.5 h-2.5 rounded-full bg-orange-500" />
             </div>
           </div>
 
-          {/* oversize circle to mimic the “cut” from the screenshot (subtle) */}
+        
           <div className="pointer-events-none absolute -right-24 -top-24 w-64 h-64 rounded-full bg-white/70 blur-2xl hidden md:block" />
         </div>
       </div>

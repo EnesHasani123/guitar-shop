@@ -35,6 +35,13 @@ type Model = {
   brandName?: string;
 };
 
+type GuitarType =
+  | "ALL"
+  | "ELECTRIC"
+  | "ACOUSTIC"
+  | "BASS"
+  | "CLASSICAL";
+
 export default function AllModelsPage() {
   const client = useApolloClient();
   const { t, tr } = useI18n();
@@ -48,9 +55,7 @@ export default function AllModelsPage() {
   const [loadingModels, setLoadingModels] = useState(false);
   const [allModels, setAllModels] = useState<Model[]>([]);
   const [brandId, setBrandId] = useState<string>("ALL");
-  const [type, setType] = useState<
-    "ALL" | "ELECTRIC" | "ACOUSTIC" | "BASS" | "CLASSICAL"
-  >("ALL");
+  const [type, setType] = useState<GuitarType>("ALL");
   const [query, setQuery] = useState("");
   const [visible, setVisible] = useState(12);
   const [spotImage, setSpotImage] = useState<string | null>(
@@ -90,14 +95,13 @@ export default function AllModelsPage() {
       );
 
       setAllModels(flat);
-      setVisible(12); 
-      setSpotImage(null); 
+      setVisible(12);
+      setSpotImage(null);
       setLoadingModels(false);
     };
 
     run();
   }, [brandsData, client, brandId]);
-
 
   const filtered = useMemo(() => {
     let items = allModels;
@@ -122,7 +126,6 @@ export default function AllModelsPage() {
 
   const isLoading = loadingBrands || loadingModels;
 
- 
   const canLoadMore = shown.length < filtered.length;
   const loadMore = useCallback(() => {
     setVisible((v) => Math.min(v + 12, filtered.length));
@@ -142,7 +145,6 @@ export default function AllModelsPage() {
 
   return (
     <main className="py-10 space-y-10">
-     
       <section className="max-w-6xl mx-auto px-4 md:px-6 grid md:grid-cols-2 gap-10 items-center">
         <div>
           <Link
@@ -191,7 +193,6 @@ export default function AllModelsPage() {
         )}
       </section>
 
-      
       <section className="max-w-6xl mx-auto px-4 md:px-6">
         <h2 className="text-2xl md:text-3xl font-semibold text-gray-900">
           {t.checkOutThe}{" "}
@@ -219,7 +220,9 @@ export default function AllModelsPage() {
           <select
             className="rounded-lg border border-gray-300 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-orange-400"
             value={type}
-            onChange={(e) => setType(e.target.value as any)}
+            onChange={(
+              e: React.ChangeEvent<HTMLSelectElement>
+            ) => setType(e.target.value as GuitarType)}
             aria-label={t.filterByType}
           >
             {(
@@ -245,7 +248,6 @@ export default function AllModelsPage() {
           />
         </div>
 
-      
         {isLoading && (
           <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {Array.from({ length: 9 }).map((_, i) => (
@@ -260,14 +262,12 @@ export default function AllModelsPage() {
           </div>
         )}
 
-   
         {!!errorBrands && (
           <div className="mt-6 p-4 border rounded bg-red-50 text-red-700">
             {t.failedLoadBrands}
           </div>
         )}
 
-    
         {!isLoading && !errorBrands && (
           <>
             <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
@@ -292,7 +292,6 @@ export default function AllModelsPage() {
               ))}
             </div>
 
-         
             {canLoadMore && (
               <div ref={sentinelRef} className="h-10" />
             )}

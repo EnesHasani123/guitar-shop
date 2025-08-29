@@ -95,15 +95,18 @@ export default function BrandModelsClient({
   const loading = loadingList || loadingSearch;
   const error = errorList || errorSearch;
 
-  const raw: Model[] = debounced
-    ? dataSearch?.searchModels ?? []
-    : dataList?.findBrandModels ?? [];
+  const raw = useMemo<Model[]>(
+    () =>
+      debounced
+        ? dataSearch?.searchModels ?? []
+        : dataList?.findBrandModels ?? [],
+    [debounced, dataSearch, dataList]
+  );
 
   const filtered = useMemo(() => {
-    let items = raw;
-    if (type !== "ALL")
-      items = items.filter((m) => m.type === type);
-    return items;
+    return type === "ALL"
+      ? raw
+      : raw.filter((m) => m.type === type);
   }, [raw, type]);
 
   const shown = filtered.slice(0, visible);
@@ -120,7 +123,6 @@ export default function BrandModelsClient({
     CLASSICAL: t.typeClassical,
   } as const;
 
-  
   const canLoadMore = shown.length < filtered.length;
   const loadMore = useCallback(() => {
     setVisible((v) => Math.min(v + 12, filtered.length));
@@ -132,7 +134,6 @@ export default function BrandModelsClient({
 
   return (
     <main className="py-10 space-y-10">
-  
       <section className="max-w-6xl mx-auto px-4 md:px-6 grid md:grid-cols-2 gap-10 items-center">
         <div>
           <Link
@@ -176,7 +177,6 @@ export default function BrandModelsClient({
         )}
       </section>
 
-     
       <section className="max-w-6xl mx-auto px-4 md:px-6">
         <h2 className="text-2xl md:text-3xl font-semibold text-gray-900">
           {t.checkOutThe}{" "}
@@ -213,7 +213,6 @@ export default function BrandModelsClient({
           />
         </div>
 
-      
         {loading && (
           <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {Array.from({ length: 9 }).map((_, i) => (
@@ -228,14 +227,12 @@ export default function BrandModelsClient({
           </div>
         )}
 
-      
         {error && (
           <div className="mt-6 p-4 border rounded bg-red-50 text-red-700">
             {t.failedLoadModels}
           </div>
         )}
 
-     
         {!loading && !error && (
           <>
             <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">

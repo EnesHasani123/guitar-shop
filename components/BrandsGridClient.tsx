@@ -1,8 +1,12 @@
+// components/BrandsGridClient.tsx
 "use client";
+
 import { useQuery } from "@apollo/client/react";
 import { FIND_ALL_BRANDS } from "@/graphql/queries";
-import type { Brand } from "@/types/graphql";
+import type { Brand as GBrand } from "@/types/graphql";
 import BrandCard from "@/components/BrandCard";
+
+type Brand = Pick<GBrand, "id" | "name" | "image">;
 
 export default function BrandsGridClient() {
   const { data, loading, error, refetch } = useQuery<{
@@ -41,7 +45,7 @@ export default function BrandsGridClient() {
   const brands = data?.findAllBrands ?? [];
   return (
     <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-6">
-      {brands.map((brand: any) => (
+      {brands.map((brand) => (
         <BrandCard key={brand.id} brand={brand} />
       ))}
     </div>

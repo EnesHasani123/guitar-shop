@@ -189,8 +189,12 @@ export default function BrandModelsClient({
           <select
             className="rounded-lg border border-gray-300 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-orange-400"
             value={type}
-            onChange={(e) => {
-              setType(e.target.value as any);
+            onChange={(
+              e: React.ChangeEvent<HTMLSelectElement>
+            ) => {
+              setType(
+                e.target.value as (typeof TYPES)[number]
+              );
               setVisible(12);
             }}
             aria-label={t.filterByType}
